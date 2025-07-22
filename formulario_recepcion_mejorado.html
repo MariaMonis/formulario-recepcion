@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Recepción de Equipos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #eef2f5; margin: 0; padding: 0; }
+    .container, .login-box {
+      max-width: 1200px; margin: 40px auto; padding: 20px;
+      background: white; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; margin-bottom: 30px; color: #007bff; }
+    form { display: flex; flex-wrap: wrap; gap: 20px; }
+    .form-group { flex: 1 1 45%; display: flex; flex-direction: column; }
+    .form-group.full { flex: 1 1 100%; }
+    label { margin-bottom: 5px; font-weight: bold; }
+    input, select, textarea {
+      padding: 10px; border: 1px solid #ccc;
+      border-radius: 5px; font-size: 14px;
+    }
+    .button-group {
+      width: 100%; display: flex; justify-content: flex-end;
+      gap: 10px; margin-top: 20px;
+    }
+    button {
+      background-color: #007bff; color: white;
+      border: none; padding: 12px 20px;
+      border-radius: 5px; font-size: 16px;
+      cursor: pointer; transition: 0.3s ease;
+    }
+    button:hover { background-color: #0056b3; }
+    @media (max-width: 768px) { .form-group { flex: 1 1 100%; } }
+    #formulario { display: none; }
+    .alerta { background: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 15px; border: 1px solid #f5c6cb; border-radius: 5px; display: none; }
+    .success { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+  </style>
+</head>
+<body>
+
+<div id="login" class="login-box">
+  <h2>Iniciar sesión</h2>
+  <div class="alerta" id="loginError">Usuario o contraseña incorrectos.</div>
+  <label>Usuario</label><input type="text" id="usuario">
+  <label>Contraseña</label><input type="password" id="clave">
+  <div class="button-group">
+    <button onclick="validarLogin()">Entrar</button>
+  </div>
+</div>
+
+<div id="formulario" class="container">
+  <h2>Formulario de Recepción de Equipos</h2>
+  <div class="alerta" id="estadoEnvio"></div>
+  <form id="equipoForm">
+    <div class="form-group"><label>Fecha de Recepción:</label><input type="date" name="fecha_recepcion" required></div>
+    <div class="form-group"><label>Fecha de Entrega:</label><input type="date" name="fecha_entrega"></div>
+    <div class="form-group"><label>Tipo de Equipo:</label><select name="tipo_equipo"><option>Escritorio</option><option>Portátil</option></select></div>
+    <div class="form-group"><label>Área de Trabajo:</label><input type="text" name="area_trabajo"></div>
+    <div class="form-group"><label>Supervisor:</label><input type="text" name="supervisor"></div>
+    <div class="form-group"><label>Número del Equipo:</label><input type="text" name="numero_equipo"></div>
+    <div class="form-group"><label>Marca:</label><input type="text" name="marca"></div>
+    <div class="form-group"><label>Número de Serie:</label><input type="text" name="serie"></div>
+    <div class="form-group full"><label>Descripción del Equipo:</label><textarea name="descripcion_equipo" rows="3"></textarea></div>
+    <div class="form-group full"><label>Condiciones Técnicas:</label><textarea name="condiciones_tecnicas" rows="3"></textarea></div>
+    <div class="form-group full"><label>Observaciones Antes:</label><textarea name="obs_antes" rows="3"></textarea></div>
+    <div class="form-group full"><label>Observaciones Después:</label><textarea name="obs_despues" rows="3"></textarea></div>
+    <div class="form-group"><label>Servicio:</label><input type="text" name="servicio"></div>
+    <div class="form-group"><label>Responsable del Trabajo:</label><input type="text" name="responsable"></div>
+    <div class="form-group"><label>Nombre y Firma del Técnico:</label><input type="text" name="tecnico"></div>
+    <div class="form-group"><label>Nombre de la Empresa o Cliente:</label><input type="text" name="empresa"></div>
+    <div class="form-group"><label>Teléfono:</label><input type="text" name="telefono"></div>
+    <div class="form-group"><label>Email:</label><input type="email" name="email"></div>
+    <div class="form-group full"><label>Dirección:</label><input type="text" name="direccion"></div>
+    <div class="form-group full"><label>Nombre y Firma del Cliente:</label><input type="text" name="cliente"></div>
+    <div class="button-group">
+      <button type="submit">Guardar</button>
+      <button type="button" onclick="document.getElementById('equipoForm').reset()">Cerrar</button>
+      <button type="button" onclick="location.reload()">Salir</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const usuarios = { "admin": "1234", "tecnico1": "abcd" };
+
+  function validarLogin() {
+    const user = document.getElementById("usuario").value.trim();
+    const pass = document.getElementById("clave").value.trim();
+    if (usuarios[user] === pass) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("formulario").style.display = "block";
+      document.getElementById("loginError").style.display = "none";
+    } else {
+      document.getElementById("loginError").style.display = "block";
+    }
+  }
+
+  document.getElementById('equipoForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const estado = document.getElementById("estadoEnvio");
+    estado.style.display = "none";
+    const data = new FormData(e.target);
+    fetch('https://script.google.com/macros/s/AKfycbxyye4XwNoaB5ZeS7yTQrkHdhiOs6Hh5SxoupcOeh7Jm67F07o-BjsASNUBonf6f83b/exec', {
+      method: 'POST',
+      body: data
+    })
+    .then(res => res.ok ? res.text() : Promise.reject(res.statusText))
+    .then(text => {
+      estado.textContent = "Formulario enviado correctamente";
+      estado.className = "alerta success";
+      estado.style.display = "block";
+      e.target.reset();
+    })
+    .catch(err => {
+      estado.textContent = "Error al enviar los datos: " + err;
+      estado.className = "alerta";
+      estado.style.display = "block";
+    });
+  });
+</script>
+</body>
+</html>
